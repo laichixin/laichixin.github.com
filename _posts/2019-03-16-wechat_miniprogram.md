@@ -209,7 +209,7 @@ tags:
 
 * 如下圖
 
-  ![init_project](../image/wechat/miniprogram/init_project.png)
+  ![init_project](/image/wechat/miniprogram/init_project.png)
 
 ##### 與普通小程序的區別
 
@@ -243,7 +243,7 @@ tags:
 
   * 當用戶訪問有云能力的小程序時， 會記錄用戶訪問時間； 在「雲開發控制台」的「用戶管理」中，會顯示訪問用戶列表（默認：按時間倒敘）
 
-    ![trance_user](../image/wechat/miniprogram/trance_user.png)
+    ![trance_user](/image/wechat/miniprogram/trance_user.png)
 
   * 
 
