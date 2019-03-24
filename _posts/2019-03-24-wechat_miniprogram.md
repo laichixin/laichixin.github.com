@@ -22,11 +22,11 @@ tags:
 
   * 猜想，你應該會遇到這個問題
 
-    ![cloudfunction](/image/wechat/2019-03-24-wechat_miniprogram/illegal_domain_name.png)
+    ![illegal_domain_name](/image/wechat/2019-03-24-wechat_miniprogram/illegal_domain_name.png)
 
   * 別急，你只需要在微信小程序，「設置」->「項目設置」->把“不校验合法域名、web-view（业务域名）、TLS版本以及HTTPS证书”選項勾選上，就可以與本地服務器通訊了
 
-    ![cloudfunction](/image/wechat/2019-03-24-wechat_miniprogram/skip_demain_name_inspection.png)
+    ![skip_demain_name_inspection](/image/wechat/2019-03-24-wechat_miniprogram/skip_demain_name_inspection.png)
 
   * 
 
