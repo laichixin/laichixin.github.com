@@ -143,6 +143,10 @@ tags:
 
 ~~~php
 
+/*因為業務需求，這裡沒有用默認的snowflake長度。 
+ * 0 時間戳41位， 數據機器位4位， 自增序號10位
+ */
+
 class Snowflake
 {
     static $workerId; //機器ID
@@ -152,11 +156,11 @@ class Snowflake
     static $sequence = 0; //序號從0開始
     static $sequenceMask = 1023; //序號自增最大值
 
-    static $maxWorkerId = 15;  //workerID 最大值
+    static $maxWorkerId = 15;  //workerID 最大值(根據數據機器位4位 2^4 = 16-1）
 
-    static $workerIdShift = 10; //10位
+    static $workerIdShift = 10; //10位 (workerID需要左移的位數： 因為自增序號是10位，所以左移10)
 
-    static $timestampLeftShift = 14; //(時間要偏移的位數)
+    static $timestampLeftShift = 14; //(時間要偏移的位數 = 數據機器位 + 自增序號 = 4 + 10 = 14)
 
     private  static $lastTimestamp = -1; //上一個時間戳
 
@@ -236,8 +240,7 @@ class Snowflake
 
 ~~~php
  $Snowflake = new Snowflake();
-$id = $Snowflake->nextId();  //生成的ID
-
+$id = $Snowflake->nextId();  //生成的ID   16位： 如 3141510396215296
 ~~~
 
 
