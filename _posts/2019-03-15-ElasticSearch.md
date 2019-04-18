@@ -79,6 +79,17 @@ tags:
      * Managerment 配置管理
      * Timelion 時序數據的高級可視化分析
 
+### 目錄
+
+~~~
+安装目录：/usr/local/Cellar/elasticsearch/{elasticsearch-version}/
+日志目录：/usr/local/var/log/elasticsearch/
+插件目录：/usr/local/var/elasticsearch/plugins/
+配置目录：/usr/local/etc/elasticsearch
+~~~
+
+
+
 ### 與ElasticSearch通訊
 
 * 語法 
@@ -416,8 +427,390 @@ ElasticSearch為了快速找到某個項，將所有項 進行排序， 二分�
   未完待續
 # kibana
 
+## 安裝與運行
+
+* 啟動（以mac为例子）
+
+  ~~~
+  brew services start kibana //啟動
+  brew services list  //查看啟動的
+  ~~~
+
+* 修改Kibana配置（以mac为例子）
+
+  * 修改配置文件：`sudo vi /usr/local/etc/kibana/kibana.yml`
+
+  * ~~~
+    取消注释
+    server.port: 5601 // Kibana端口
+    elasticsearch.url: "http://localhost:9200” 
+    elasticsearch.username: "user"
+    elasticsearch.password: "123456"
+    ~~~
+
+  * 访问
+
+    ~~~
+    localhost:5601/status
+    ~~~
+
+
+## 目錄
+
+~~~
+/usr/local/Cellar/kibana/{kibana-version}/
+/usr/local/etc/kibana/
+~~~
+
+
 
 # Logstash    
+
+## 參考資料
+
+* [官網文檔](https://www.elastic.co/guide/en/logstash/master/installing-logstash.html)
+* [Logstash Reference](https://www.elastic.co/guide/en/logstash/current/index.html)
+
+## 簡介與工作原理
+
+### 簡介
+
+* 動態收集不同源的數據，過濾，并指定按不同格式輸出數據。
+
+  如：通過Logstash，可以輕鬆獲取大量運行日誌，并結合ElasticSearch、Kibana進行分析和統計運行日誌
+
+### 工作原理
+
+* 三個步驟： inputs(必須) —> filters(選項) —> outputs(必須)
+  1. Inputs
+     * 抓取數據到logstash
+     * 經常遇到的數據源，文件、系統日誌、redis、beats，更多請參考[Inputs Plugins](https://www.elastic.co/guide/en/logstash/6.5/input-plugins.html)
+  2. Filters
+     *  過濾/處理數據
+     * 常用的Filters ： gork(將結構數據 過濾為 有結構的數據)、mutate(重命名、替代、移除、修改fileds)、drop(刪除)、clone(克隆)、geoip(增加ip信息)
+  3. outputs
+     * 輸出源
+     * 常用的輸出源： elasticsearch(保存數據高效、方便、查詢簡單)、file(輸出數據到某個磁盤文件)、graphite(開源，請參考[graphite文檔](https://graphite.readthedocs.io/en/latest/))、statsd()， 更多請參考[Outputs Plugins](https://www.elastic.co/guide/en/logstash/6.5/output-plugins.html)
+  4. Codecs 
+     * 流過濾器，Codecs能讓容易的區分不同進程的輸出/輸入、  常用的codecs ： json. plain(text), msgpack，  更多請參考[codec Plugins](https://www.elastic.co/guide/en/logstash/6.5/codec-plugins.html)
+* 每個input ，Logstash管道都會用獨立線程運行、主要運行在內存或硬盤上。
+
+
+
+## 安裝與運行
+
+* [安裝方法，請查看官網Installing Logstash](https://www.elastic.co/guide/en/logstash/current/installing-logstash.html)
+
+* mac 安裝
+
+* ~~~
+  brew install logstash
+  logstash --version
+  ~~~
+
+* 啟動/重啟/關閉
+
+  ~~~
+  brew services start logstash
+  brew services stop logstash
+  brew services restart logstash
+  ~~~
+
+* 用logStash基本的管道测试一下(mac環境)
+
+  * 在目錄`/usr/local/Cellar/logstash/6.7.0` 
+  * 輸入命令`bin/logstash -e 'input { stdin { } } output { stdout {} }'`
+    * `-e` : 直接從命令行修改配置 
+    * `input`：指定輸入；
+    * `stdin`:從控制台輸入
+    *  `output`:指定輸出
+    * `stdout`:輸出到控制台
+  * 輸入`MY name is Francis` 會打印如下結果
+
+  * 打印結果如下
+
+    ~~~
+    {
+        "@timestamp" => 2019-04-16T03:43:19.910Z,
+          "@version" => "1",
+           "message" => "MY name is Francis",
+              "host" => "adminde-MacBook-Pro.local"
+    }
+    ~~~
+
+* 更多運行相關請查看[Running Logstash From the Command Line](https://www.elastic.co/guide/en/logstash/5.4/running-logstash-command-line.html#command-line-flags)
+
+## 目錄
+
+~~~
+安裝目錄： /usr/local/Cellar/logstash/{logstash-version}/
+配置文件：/usr/local/etc/logstash/
+~~~
+
+* 提示  mac環境 可以通過`brew info logstash `查看安裝相關信息
+
+## 插件
+
+* 參考資料
+  * [Input plugins](https://www.elastic.co/guide/en/logstash/current/input-plugins.html)
+  * [output plugins](https://www.elastic.co/guide/en/logstash/current/output-plugins.html)
+  * [filter plugins](https://www.elastic.co/guide/en/logstash/current/filter-plugins.html)
+
+* Logstash有豐富的插件，處理 `input`、`filter`、`output`
+
+* 通過命令`bin/logstash-plugin`腳本管理Logstash的插件
+
+* 查看插件
+
+  提示：以下命令，請在安裝目錄下執行 (mac環境：/usr/local/Cellar/logstash/版本號)
+
+  * 列出安裝的插件
+
+    ~~~
+    bin/logstash-plugin list
+    ~~~
+
+  * 列出安裝插件的版本信息
+
+    ~~~
+    bin/logstash-plugin list --verbose
+    ~~~
+
+  * 查看在`input`、`filter`、`output`場景中適用的插件
+
+  *  ~~~
+    //查看適合在input中使用的插件
+    bin/logstash-plugin list --group input
+    //查看適合在filter中使用的插件
+    bin/logstash-plugin list --group filter
+    //查看適合在output中使用的插件
+    bin/logstash-plugin list --group output
+    
+    ~~~
+
+* 安裝插件
+
+  * 一般情況下，插件在`RubyGems.org`中，可通過下面命令可安裝插件
+
+    * 如：想要安裝`filter`場景的`geoip`插件，可執行下面命令。可以從`RubyGems.org`中檢索到插件，并進行安裝，安裝成功後，即可在配置文件中使用
+
+    * ```shell
+      bin/logstash-plugin install logstash-filter-geoip
+      
+      //成功會有類似如下的提示
+      //Validating logstash-filter-geoip
+      //Installing logstash-filter-geoip
+      //Installation successful
+      ```
+
+  * 某些情況下，插件不在`RubyGems.org`中，可指定本地插件進行安裝，命令如下
+
+  * ~~~
+    bin/logstash-plugin install 本地路徑/插件名.gem
+    ~~~
+
+* 更新插件
+
+  * 更新所有插件
+
+    ~~~
+    bin/logstash-plugin update
+    ~~~
+
+  * 更新指定插件，
+
+    ~~~
+    //如，想要更新`filter`場景的`geoip`插件
+    bin/logstash-plugin update  logstash-filter-geoip
+    ~~~
+
+* 移除插件
+
+* ~~~
+  //如，想要更新`filter`場景的`geoip`插件
+  bin/logstash-plugin remove logstash-filter-geoip
+  ~~~
+
+* 注意
+
+  一般情況下，安裝插件，需要訪問`RubyGems.org`， 若不能訪問，請參考[Proxy Support](https://www.elastic.co/guide/en/logstash/current/working-with-plugins.html#removing-plugins)
+
+* 可創建自己的`插件`, 請參考[Generating Plugins](https://www.elastic.co/guide/en/logstash/current/plugin-generator.html)
+
+* 更多，請參考官網
+
+  
+
+# Filebeat
+
+## 參考資料
+
+* [Filebeat文檔](https://www.elastic.co/guide/en/beats/filebeat/7.0/filebeat-getting-started.html)
+
+## 簡介、安裝、配置、運行
+
+### 簡介
+
+Fliebeat是輕量級的，資源友好的工具，佔用資源少、可靠、低延遲。
+
+常常用來收集服務端文件日誌，并將收集的文件 發送到Logstash示例中處理
+
+## 安裝
+
+* mac 環境
+
+  ~~~
+  curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.0.0-darwin-x86_64.tar.gz
+  tar xzvf filebeat-7.0.0-darwin-x86_64.tar.gz
+  ~~~
+
+* 其他請參考[Filebeat安裝文檔](https://www.elastic.co/guide/en/beats/filebeat/7.0/filebeat-installation.html)
+
+## 配置filebeat.yml文件
+
+* `filebeat.yml`文件在在`/usr/local/etc/filebeat/`目錄中(mac環境) 
+
+##  目錄
+
+~~~
+安装目录：/usr/local/Cellar/filebeat/{filebeat-version}/
+配置目录：/usr/local/etc/filebeat/
+缓存目录：/usr/local/var/lib/filebeat/
+~~~
+
+
+
+
+
+# 案例
+
+## 1、通過Filebeat 獲取指定服務器日誌， 輸出logstash ，并打印在控制台中
+
+注意：<font color="red">Make sure you have the latest compatible version of the Beats input plugin for Logstash installed,請參考[logstash-setup](https://www.elastic.co/guide/en/beats/libbeat/1.2/logstash-installation.html#logstash-setup)</font>
+
+1. 配置`filebeat.yml`(mac環境，該文件在/usr/local/etc/filebeat/中)
+
+   * 將日誌文件通過`filebeat`收集到`logstash`中
+   * `filebeat.yml`配置如下
+
+   ~~~
+   filebeat.inputs:
+   - type: log
+     paths:
+       -/Users/admin/Documents/code/pro/k5/common/runtime/logs/2019/04/17/mqtt_data_rctl.log //日誌文件路徑 ,也可以指定某個文件 如：/var/log/*.log
+   
+   output.logstash:
+     hosts: ["localhost:5044"] //logstash的url
+   ~~~
+
+2. 配置logstash
+
+   * 在 安裝目錄(mac環境：/usr/local/Cellar/logstash/6.7.0) 創建一個配置文件`test-pipeline.conf`
+
+   *  `test-pipeline.conf`文件內容如下：
+
+     ~~~
+     input { //輸入
+         beats {  //這部分表示  指定logstash 的input 來自beats
+            port => "5044"
+         }
+     }
+     filter {
+         gork {
+            match => { "message" => "%{COMBINEDAPACHELOG}" } //過濾器插件，將非結構化數據解析為結構化和可查詢數據  注意安裝插件
+         }
+         geoip {
+           source => "clientip" //客戶端IP地理信息 注意安裝插件
+         }
+     }
+     output { //輸出 
+         //stdout {codec => rubydebug} //codec => rubydebug輸出到控制台
+     }
+     ~~~
+
+3. 檢查并啟用logstash 
+
+   * 在`/usr/local/Cellar/logstash/6.7.0`目錄執行
+
+   ~~~
+   bin/logstash -f test-pipeline.conf --config.reload.automatic //config.reload.automatic的意思是啟動配置加載(就不需在修改配置后 ，重啟logstash)  
+   
+   //也可以配置  --config.test_and_exit   如：bin/logstash -f test-pipeline.conf --config.test_and_exit //config.test_and_exit的意思是解析配置文件并報告任何錯誤
+   ~~~
+
+4. 啟動filebeat
+
+   * 在`/usr/local/etc/filebeat`目錄中執行
+
+   ~~~
+   filebeat -e -c filebeat.yml -d "publish"
+   ~~~
+
+   * 若修改了配置，需要`rm data/registr`刪除Filebeat註冊文件
+
+5. 查看结果(logstash控制台輸出)
+
+   ![logstash_stdout_rubydebug](/image/elasticsearch/logstash_stdout_rubydebug.png)
+
+   
+
+   
+
+   
+
+
+
+
+
+
+
+
+
+# Graphite 
+
+## 參考資料
+
+[Graphite 文檔](https://graphite.readthedocs.io/en/latest/)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
