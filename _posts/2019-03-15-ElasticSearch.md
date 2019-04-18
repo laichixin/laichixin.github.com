@@ -716,7 +716,7 @@ Fliebeat是輕量級的，資源友好的工具，佔用資源少、可靠、低
          }
      }
      filter {
-         gork {
+         grok {
             match => { "message" => "%{COMBINEDAPACHELOG}" } //過濾器插件，將非結構化數據解析為結構化和可查詢數據  注意安裝插件
          }
          geoip {
@@ -744,9 +744,10 @@ Fliebeat是輕量級的，資源友好的工具，佔用資源少、可靠、低
 
    ~~~
    filebeat -e -c filebeat.yml -d "publish"
+   
    ~~~
 
-   * 若修改了配置，需要`rm data/registr`刪除Filebeat註冊文件
+   * 因為有緩存，若修改了配置，想要filebeat重新加載日誌，請先在緩存目錄(mac環境`/usr/local/var/lib/filebeat/`)執行 `rm registry`刪除Filebeat註冊文件
 
 5. 查看结果(logstash控制台輸出)
 
