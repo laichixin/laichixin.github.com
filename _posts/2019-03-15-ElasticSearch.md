@@ -755,15 +755,38 @@ Fliebeat是輕量級的，資源友好的工具，佔用資源少、可靠、低
 
    
 
-   
-
-   
 
 
+## 2、通過Filebeat 獲取指定服務器日誌， 輸出logstash ，并輸出到ElasticSearch中
 
+1. 將上面 `案例1`，`test-pipeline.conf`配置文件中的output 指定為ElasticSearch
 
+~~~
+output {
+   # stdout { codec => rubydebug }
+    elasticsearch {
+        hosts => [ "localhost:9200" ]
+        # 若有密碼請配置密碼
+    }
+}
+~~~
 
+2. 因為有緩存，若修改了配置，想要filebeat重新加載日誌，請先在緩存目錄(mac環境`/usr/local/var/lib/filebeat/`)執行 `rm registry`刪除Filebeat註冊文件
 
+3. 執行 `bin/logstash -f test-pipeline.conf --config.reload.automatic `
+4. 執行 `filebeat -e -c filebeat.yml -d "publish"`
+
+* 查看ElasticSearch 
+
+  * 終端執行 curl -XGET 'localhost:9200/logstash-$DATE/_search?pretty&q=response=200' (注意：將DATE替換成'YYYY.MM.DD'格式的實際日期 ) 如：
+
+    ~~~
+    curl -XGET 'localhost:9200/logstash-2019.04.18/_search?pretty&q=response=200'
+    ~~~
+
+    * 輸出結果為，
+
+      ![logstash_elasticsearch_output](/image/elasticsearch/logstash_elasticsearch_output.png)
 
 
 
